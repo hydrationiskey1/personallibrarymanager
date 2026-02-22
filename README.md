@@ -1,4 +1,4 @@
-Personal Library Manager Pro is a clean, browser-based app for organizing and tracking your entire book collection. It runs fully in your browser, works on GitHub Pages, and lets you catalog details, track reading progress, manage book values in multiple currencies,
+Personal Library Manager is a clean, browser-based app for organizing and tracking your entire book collection. It runs fully in your browser, works on GitHub Pages, and lets you catalog details, track reading progress, manage book values in multiple currencies,
 etc.
 
 NOTE: Sync between devices is availaible, but not automatically, tbh I didn't feel like doing it, cause I made this program for myself, but thought to share it with others since there are people who need something like this that isn't behind a pay-wall.
