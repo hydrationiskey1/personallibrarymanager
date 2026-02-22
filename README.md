@@ -4,6 +4,8 @@ etc.
 NOTE: Sync between devices is availaible, but not automatically, tbh I didn't feel like doing it, cause I made this program for myself, but thought to share it with others since there are people who need something like this that isn't behind a pay-wall.
 If you really want cloud sync, I did put it in the code, just reuse my code and enable it yourself. I put how to do this at the bottom of this read me section, just scroll down. Lmk if any problems occur with the code.
 
+ALSO, if the dropdown menus for you when adding a book are completely white, and the options are only visible when you glide over them, there is a possible solution listed at the bottom. It's not gauranteed to fix it, cause if you have teh problem, the only true way to fix it, is to change the code.
+
 Features:
 
 - Add, edit, and delete books
@@ -126,5 +128,22 @@ Extra note for GitHub Pages users:
 
 If you host on GitHub Pages, add your site domain in Firebase:
 Authentication → Settings → Authorized domains (add YOURNAME.github.io).
+
+-------------------
+
+Fix option for white drop-down menu's:
+
+Force option colors (works in some browsers):
+
+NOT A GAURANTEED FIX.
+
+Add this to your CSS:
+
+select, option {
+  color: var(--text);
+  background: color-mix(in oklab, var(--bg) 80%, black 20%);
+}
+
+If it works on your machine, great. If not, that’s the browser ignoring it.
 
 
