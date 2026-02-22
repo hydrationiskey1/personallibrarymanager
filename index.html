@@ -1,0 +1,2038 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Personal Library Manager Pro</title>
+  <meta name="color-scheme" content="light dark" />
+  <style>
+    :root{
+      --bg:#0b0f17;
+      --panel:rgba(255,255,255,.06);
+      --panel2:rgba(255,255,255,.09);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.68);
+      --border:rgba(255,255,255,.10);
+      --shadow:0 18px 60px rgba(0,0,0,.45);
+      --accent:#7c5cff;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --ring:0 0 0 4px rgba(124,92,255,.25);
+      --radius:18px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    [data-theme="light"]{
+      --bg:#f6f7fb;
+      --panel:rgba(15,23,42,.05);
+      --panel2:rgba(15,23,42,.08);
+      --text:rgba(15,23,42,.92);
+      --muted:rgba(15,23,42,.62);
+      --border:rgba(15,23,42,.12);
+      --shadow:0 18px 60px rgba(2,6,23,.12);
+      --ring:0 0 0 4px rgba(124,92,255,.18);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 15% 0%, rgba(124,92,255,.35), transparent 60%),
+        radial-gradient(900px 600px at 90% 10%, rgba(34,197,94,.22), transparent 55%),
+        radial-gradient(1000px 700px at 55% 100%, rgba(59,130,246,.18), transparent 60%),
+        var(--bg);
+      min-height:100vh;
+    }
+    .wrap{max-width:1220px;margin:0 auto;padding:26px 18px 70px}
+    header{
+      display:flex; gap:14px; align-items:center; justify-content:space-between;
+      padding:16px 18px; border:1px solid var(--border); background:var(--panel);
+      border-radius:var(--radius); box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      position:sticky; top:14px; z-index:9;
+    }
+    @media (max-width: 980px){ header{position:relative; top:0; flex-wrap:wrap} }
+    .brand{display:flex; align-items:center; gap:12px; min-width:240px}
+    .logo{
+      width:42px;height:42px;border-radius:14px;
+      background: conic-gradient(from 210deg, var(--accent), #3b82f6, var(--good), var(--accent));
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    h1{font-size:16px;margin:0;letter-spacing:.2px}
+    .sub{font-size:12px;color:var(--muted);margin-top:2px}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px; border-radius:999px;
+      border:1px solid var(--border); background:var(--panel2);
+      font-size:12px; color:var(--muted);
+      flex-wrap:wrap;
+    }
+    .pill strong{color:var(--text); font-weight:750}
+    .actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    button{
+      appearance:none; border:1px solid var(--border);
+      background:var(--panel2);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:750;
+      font-size:13px;
+      transition: transform .08s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
+      display:inline-flex; align-items:center; gap:8px;
+      user-select:none;
+    }
+    button:hover{transform: translateY(-1px); border-color: rgba(124,92,255,.35)}
+    button:active{transform: translateY(0px)}
+    button.primary{
+      background: linear-gradient(135deg, rgba(124,92,255,.92), rgba(124,92,255,.65));
+      border-color: rgba(124,92,255,.55);
+      box-shadow: 0 14px 40px rgba(124,92,255,.22);
+    }
+    button.ghost{background:transparent}
+    button.danger{border-color: rgba(239,68,68,.5); background: rgba(239,68,68,.10)}
+    button:focus{outline:none; box-shadow: var(--ring)}
+    main{margin-top:16px; display:grid; grid-template-columns: 1.25fr .75fr; gap:16px}
+    @media (max-width: 980px){ main{grid-template-columns:1fr} }
+
+    .panel{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+    .panel .hd{
+      padding:14px 16px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      border-bottom:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+    }
+    .panel .hd h2{margin:0; font-size:14px}
+    .panel .bd{padding:14px 16px}
+
+    .stats{
+      display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;
+    }
+    @media (max-width: 980px){ .stats{grid-template-columns: repeat(2, 1fr)} }
+    .card{
+      padding:12px 12px;
+      border-radius:16px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.05);
+    }
+    .card .k{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.12em}
+    .card .v{margin-top:6px; font-size:18px; font-weight:900}
+    .card .s{margin-top:2px; font-size:12px; color:var(--muted)}
+
+    .toolbar{
+      display:flex; flex-wrap:wrap; gap:10px;
+      align-items:flex-end;
+    }
+    .toolbar .grow{flex:1}
+    .field{display:flex; flex-direction:column; gap:6px; min-width:160px}
+    label{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.12em}
+    input, select, textarea{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-size: 13px;
+      outline:none;
+      transition: box-shadow .15s ease, border-color .15s ease;
+    }
+    textarea{min-height:90px; resize:vertical}
+    input:focus, select:focus, textarea:focus{box-shadow: var(--ring); border-color: rgba(124,92,255,.35)}
+    input::placeholder, textarea::placeholder{color: rgba(255,255,255,.45)}
+    [data-theme="light"] input::placeholder, [data-theme="light"] textarea::placeholder{color: rgba(15,23,42,.40)}
+
+    .tablewrap{overflow:auto; border-top:1px solid var(--border)}
+    table{width:100%; border-collapse:separate; border-spacing:0; min-width: 1020px}
+    th, td{padding:10px 10px; text-align:left; font-size:13px; border-bottom:1px solid var(--border); vertical-align:middle}
+    th{
+      position:sticky; top:0;
+      background: rgba(255,255,255,.06);
+      backdrop-filter: blur(10px);
+      font-size:11px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      cursor:pointer;
+      user-select:none;
+      white-space:nowrap;
+    }
+    tr:hover td{background: rgba(255,255,255,.04)}
+    .book{
+      display:flex; align-items:center; gap:10px; min-width: 250px;
+    }
+    .cover{
+      width:42px;height:54px;border-radius:10px; flex:0 0 auto;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.07);
+      overflow:hidden;
+      display:grid; place-items:center;
+      font-size:10px; color:var(--muted);
+    }
+    .cover img{width:100%;height:100%;object-fit:cover;display:block}
+    .title{font-weight:900}
+    .meta{font-size:12px;color:var(--muted); margin-top:2px}
+    .tag{
+      display:inline-flex; align-items:center;
+      padding:6px 8px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      font-size:12px;
+      white-space:nowrap;
+      gap:6px;
+    }
+    .tag.good{border-color: rgba(34,197,94,.35); color: rgba(34,197,94,.95); background: rgba(34,197,94,.08)}
+    .tag.warn{border-color: rgba(245,158,11,.40); color: rgba(245,158,11,.98); background: rgba(245,158,11,.08)}
+    .tag.bad{border-color: rgba(239,68,68,.40); color: rgba(239,68,68,.98); background: rgba(239,68,68,.08)}
+    .rowbtns{display:flex; gap:8px; justify-content:flex-end}
+    .rowbtns button{padding:8px 10px; border-radius:12px; font-weight:850}
+    .hint{color:var(--muted); font-size:12px; line-height:1.45}
+    .split{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    @media (max-width: 980px){ .split{grid-template-columns:1fr} }
+    .tri{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px}
+    @media (max-width: 980px){ .tri{grid-template-columns:1fr} }
+
+    .bar{
+      height:10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      overflow:hidden;
+    }
+    .bar > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(124,92,255,.95), rgba(34,197,94,.9));
+    }
+
+    /* Tabs */
+    .tabs{display:flex; gap:8px; flex-wrap:wrap}
+    .tabbtn{
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      font-size:12px;
+      color: var(--muted);
+      cursor:pointer;
+      font-weight:800;
+    }
+    .tabbtn.active{
+      color: var(--text);
+      border-color: rgba(124,92,255,.45);
+      background: rgba(124,92,255,.12);
+    }
+
+    /* Modal */
+    .modal{
+      position:fixed; inset:0; display:none; place-items:center;
+      background: rgba(0,0,0,.55);
+      padding:18px;
+      z-index: 50;
+    }
+    .modal.open{display:grid}
+    .modalbox{
+      width:min(920px, 100%);
+      border:1px solid var(--border);
+      background: color-mix(in oklab, var(--bg) 82%, black 18%);
+      border-radius: 22px;
+      box-shadow: 0 30px 120px rgba(0,0,0,.55);
+      overflow:hidden;
+    }
+    .modalhd{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:14px 16px;
+      border-bottom:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), transparent);
+    }
+    .modalhd h3{margin:0; font-size:14px}
+    .modalbd{padding:14px 16px; max-height: 72vh; overflow:auto}
+    .modalft{
+      padding:14px 16px;
+      border-top:1px solid var(--border);
+      display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap;
+      background: linear-gradient(0deg, rgba(255,255,255,.05), transparent);
+    }
+
+    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono"; font-size:11px; padding:3px 6px; border-radius:8px; border:1px solid var(--border); background: rgba(255,255,255,.06); color:var(--muted)}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";}
+    .toast{
+      position:fixed; left:50%; bottom:16px; transform:translateX(-50%);
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--border);
+      padding:10px 12px;
+      border-radius: 14px;
+      color: var(--text);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      display:none;
+      max-width: min(760px, 92vw);
+      z-index: 80;
+      font-size: 13px;
+    }
+    .toast.show{display:block}
+    .minirow{display:flex; gap:10px; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px dashed rgba(255,255,255,.10)}
+    [data-theme="light"] .minirow{border-bottom-color: rgba(15,23,42,.12)}
+    .minirow:last-child{border-bottom:none}
+    .right{display:flex; gap:8px; align-items:center; justify-content:flex-end; flex-wrap:wrap}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Personal Library Manager <span style="opacity:.75">Pro</span></h1>
+          <div class="sub">IndexedDB • ISBN autofill • multi-currency • optional cloud sync</div>
+        </div>
+      </div>
+
+      <div class="pill" id="headerPill">
+        <span>Books:</span> <strong id="pillCount">0</strong>
+        <span style="opacity:.6">•</span>
+        <span>Total value:</span> <strong id="pillValue">$0.00</strong>
+        <span style="opacity:.6">•</span>
+        <span>Base:</span> <strong id="pillBase">USD</strong>
+      </div>
+
+      <div class="actions">
+        <button class="ghost" id="themeBtn" title="Toggle theme">🌓 Theme</button>
+        <button class="ghost" id="settingsBtn" title="Settings (currency, cloud sync)">⚙️ Settings</button>
+        <button class="ghost" id="exportBtn" title="Export as JSON">⬇️ Export JSON</button>
+        <button class="ghost" id="exportCsvBtn" title="Export as CSV">📄 Export CSV</button>
+        <button class="ghost" id="importBtn" title="Import JSON">⬆️ Import</button>
+        <button class="primary" id="addBtn">＋ Add book</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel">
+        <div class="hd">
+          <h2>Library</h2>
+          <div class="hint">
+            Click column headers to sort • <span class="kbd">Ctrl</span>+<span class="kbd">K</span> search • <span class="kbd">Esc</span> close
+          </div>
+        </div>
+
+        <div class="bd">
+          <div class="toolbar">
+            <div class="field grow">
+              <label for="q">Search</label>
+              <input id="q" placeholder="Title, author, category, tag, ISBN, notes..." />
+            </div>
+
+            <div class="field">
+              <label for="fStatus">Status</label>
+              <select id="fStatus">
+                <option value="">All</option>
+                <option>Owned</option>
+                <option>Read</option>
+                <option>Reading</option>
+                <option>Wishlist</option>
+                <option>Loaned</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="fCategory">Category</label>
+              <select id="fCategory"><option value="">All</option></select>
+            </div>
+
+            <div class="field">
+              <label for="fAuthor">Author</label>
+              <select id="fAuthor"><option value="">All</option></select>
+            </div>
+
+            <div class="field">
+              <label for="fTag">Tag</label>
+              <select id="fTag"><option value="">All</option></select>
+            </div>
+
+            <div class="field">
+              <label for="fFormat">Format</label>
+              <select id="fFormat">
+                <option value="">All</option>
+                <option>Hardcover</option>
+                <option>Paperback</option>
+                <option>eBook</option>
+                <option>Audiobook</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="clearBtn">Reset</label>
+              <button id="clearBtn" class="ghost" style="justify-content:center">Clear filters</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tablewrap">
+          <table id="tbl" aria-label="Library table">
+            <thead>
+              <tr>
+                <th data-sort="title">Book</th>
+                <th data-sort="authors">Authors</th>
+                <th data-sort="categories">Categories</th>
+                <th data-sort="status">Status</th>
+                <th data-sort="progress">Progress</th>
+                <th data-sort="format">Format</th>
+                <th data-sort="valueBase">Value (base)</th>
+                <th data-sort="priceNative">Price (native)</th>
+                <th data-sort="purchaseDate">Purchased</th>
+                <th data-sort="location">Location</th>
+                <th style="text-align:right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <div class="hd">
+          <h2>Overview</h2>
+          <div class="tabs" role="tablist" aria-label="Overview tabs">
+            <div class="tabbtn active" data-tab="stats">Stats</div>
+            <div class="tabbtn" data-tab="fx">FX</div>
+            <div class="tabbtn" data-tab="cloud">Cloud</div>
+          </div>
+        </div>
+
+        <div class="bd" id="tab_stats">
+          <div class="stats">
+            <div class="card">
+              <div class="k">Books</div>
+              <div class="v" id="sBooks">0</div>
+              <div class="s">Total entries</div>
+            </div>
+            <div class="card">
+              <div class="k">Value</div>
+              <div class="v" id="sValue">$0.00</div>
+              <div class="s">Converted to base currency</div>
+            </div>
+            <div class="card">
+              <div class="k">Authors</div>
+              <div class="v" id="sAuthors">0</div>
+              <div class="s">Unique authors</div>
+            </div>
+            <div class="card">
+              <div class="k">Categories</div>
+              <div class="v" id="sCats">0</div>
+              <div class="s">Unique categories</div>
+            </div>
+          </div>
+
+          <div style="height:12px"></div>
+
+          <div class="panel" style="box-shadow:none">
+            <div class="hd">
+              <h2 style="font-size:13px;margin:0">Breakdown</h2>
+              <div class="hint">Statuses • top categories</div>
+            </div>
+            <div class="bd">
+              <div class="split">
+                <div>
+                  <div class="hint" style="margin-bottom:8px"><strong>By status</strong></div>
+                  <div id="byStatus" class="hint"></div>
+                </div>
+                <div>
+                  <div class="hint" style="margin-bottom:8px"><strong>Top categories</strong></div>
+                  <div id="topCats" class="hint"></div>
+                </div>
+              </div>
+              <div style="height:12px"></div>
+              <div class="hint">
+                Stored locally in <span class="mono">IndexedDB</span>. Use Export JSON for backups.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bd" id="tab_fx" style="display:none">
+          <div class="hint" style="margin-bottom:10px">
+            Multi-currency totals convert each book’s “native” price into your base currency.
+          </div>
+
+          <div class="panel" style="box-shadow:none">
+            <div class="hd">
+              <h2 style="font-size:13px;margin:0">FX settings</h2>
+              <div class="hint" id="fxMeta">Not loaded yet</div>
+            </div>
+            <div class="bd">
+              <div class="split">
+                <div class="field">
+                  <label for="baseCurrency">Base currency</label>
+                  <select id="baseCurrency"></select>
+                </div>
+                <div class="field">
+                  <label for="fxProvider">FX provider</label>
+                  <select id="fxProvider">
+                    <option value="auto">Auto</option>
+                    <option value="exchangerate_host">exchangerate.host</option>
+                    <option value="exchangerate_api_open">exchangerate-api.com (open)</option>
+                    <option value="manual">Manual (no network)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="height:10px"></div>
+
+              <div class="minirow">
+                <div>
+                  <div style="font-weight:900">Rates cache</div>
+                  <div class="hint" id="fxCacheHint">—</div>
+                </div>
+                <div class="right">
+                  <button class="ghost" id="fxRefreshBtn">🔄 Refresh</button>
+                </div>
+              </div>
+
+              <div style="height:10px"></div>
+              <div class="hint">
+                If a provider fails (rate limits / CORS), “Auto” will fall back. You can always use “Manual”.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bd" id="tab_cloud" style="display:none">
+          <div class="panel" style="box-shadow:none">
+            <div class="hd">
+              <h2 style="font-size:13px;margin:0">Cloud sync (optional)</h2>
+              <div class="hint">Uses Firebase Auth + Firestore</div>
+            </div>
+            <div class="bd">
+              <div class="hint" style="margin-bottom:10px">
+                This app works fully offline without cloud. To enable cloud sync, paste your Firebase config in Settings.
+              </div>
+
+              <div class="minirow">
+                <div>
+                  <div style="font-weight:900">Status</div>
+                  <div class="hint" id="cloudStatus">Not configured</div>
+                </div>
+                <div class="right">
+                  <button class="ghost" id="cloudSignInBtn">🔐 Sign in</button>
+                  <button class="ghost" id="cloudSignOutBtn" style="display:none">🚪 Sign out</button>
+                </div>
+              </div>
+
+              <div class="minirow">
+                <div>
+                  <div style="font-weight:900">Sync</div>
+                  <div class="hint" id="cloudSyncHint">—</div>
+                </div>
+                <div class="right">
+                  <button class="ghost" id="cloudPushBtn">⬆️ Push</button>
+                  <button class="ghost" id="cloudPullBtn">⬇️ Pull</button>
+                </div>
+              </div>
+
+              <div class="hint" style="margin-top:10px">
+                Recommended: use Push after big edits, Pull on a new device.
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Book Modal -->
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modalbox">
+      <div class="modalhd">
+        <h3 id="modalTitle">Add book</h3>
+        <div class="right">
+          <button class="ghost" id="isbnFillBtn" title="Autofill from ISBN (Open Library/Google Books)">🔎 ISBN Autofill</button>
+          <button class="ghost" id="closeModalBtn" title="Close">✕</button>
+        </div>
+      </div>
+      <div class="modalbd">
+        <form id="form">
+          <input type="hidden" id="id" />
+
+          <div class="split">
+            <div class="field">
+              <label for="title">Title *</label>
+              <input id="title" required placeholder="e.g., The Things They Carried" />
+            </div>
+            <div class="field">
+              <label for="authors">Authors *</label>
+              <input id="authors" required placeholder="Comma-separated (e.g., Tim O'Brien)" />
+            </div>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <div class="split">
+            <div class="field">
+              <label for="categories">Categories</label>
+              <input id="categories" placeholder="Comma-separated (e.g., Fiction, War, Memoir)" />
+            </div>
+            <div class="field">
+              <label for="tags">Tags</label>
+              <input id="tags" placeholder="Comma-separated (e.g., signed, first edition)" />
+            </div>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <div class="tri">
+            <div class="field">
+              <label for="publisher">Publisher</label>
+              <input id="publisher" placeholder="Optional" />
+            </div>
+            <div class="field">
+              <label for="isbn">ISBN</label>
+              <input id="isbn" placeholder="10 or 13 digits (optional)" />
+            </div>
+            <div class="field">
+              <label for="coverUrl">Cover image URL</label>
+              <input id="coverUrl" placeholder="https://..." />
+            </div>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <div class="split">
+            <div class="field">
+              <label for="status">Status</label>
+              <select id="status">
+                <option>Owned</option>
+                <option>Read</option>
+                <option>Reading</option>
+                <option>Wishlist</option>
+                <option>Loaned</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="format">Format</label>
+              <select id="format">
+                <option>Hardcover</option>
+                <option>Paperback</option>
+                <option>eBook</option>
+                <option>Audiobook</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <div class="split">
+            <div class="field">
+              <label for="condition">Condition</label>
+              <select id="condition">
+                <option value="">—</option>
+                <option>New</option>
+                <option>Like New</option>
+                <option>Very Good</option>
+                <option>Good</option>
+                <option>Fair</option>
+                <option>Poor</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="location">Location</label>
+              <input id="location" placeholder="e.g., Shelf A2 / Bedroom" />
+            </div>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <div class="panel" style="box-shadow:none">
+            <div class="hd">
+              <h2 style="font-size:13px;margin:0">Reading progress</h2>
+              <div class="hint">Pages, percent, rating</div>
+            </div>
+            <div class="bd">
+              <div class="tri">
+                <div class="field">
+                  <label for="pagesTotal">Total pages</label>
+                  <input id="pagesTotal" type="number" min="0" step="1" placeholder="e.g., 256" />
+                </div>
+                <div class="field">
+                  <label for="pagesRead">Pages read</label>
+                  <input id="pagesRead" type="number" min="0" step="1" placeholder="e.g., 120" />
+                </div>
+                <div class="field">
+                  <label for="rating">Rating</label>
+                  <select id="rating">
+                    <option value="">—</option>
+                    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="height:10px"></div>
+
+              <div class="split">
+                <div class="field">
+                  <label for="startedDate">Started date</label>
+                  <input id="startedDate" type="date" />
+                </div>
+                <div class="field">
+                  <label for="finishedDate">Finished date</label>
+                  <input id="finishedDate" type="date" />
+                </div>
+              </div>
+
+              <div style="height:10px"></div>
+
+              <div class="hint" id="progressHint">Progress: —</div>
+              <div class="bar" aria-label="Progress bar"><div id="progressBar"></div></div>
+            </div>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <div class="panel" style="box-shadow:none">
+            <div class="hd">
+              <h2 style="font-size:13px;margin:0">Purchase + value</h2>
+              <div class="hint">Native currency converts into base</div>
+            </div>
+            <div class="bd">
+              <div class="tri">
+                <div class="field">
+                  <label for="price">Price</label>
+                  <input id="price" type="number" min="0" step="0.01" placeholder="e.g., 14.99" />
+                </div>
+                <div class="field">
+                  <label for="priceCurrency">Currency</label>
+                  <select id="priceCurrency"></select>
+                </div>
+                <div class="field">
+                  <label for="purchaseDate">Purchase date</label>
+                  <input id="purchaseDate" type="date" />
+                </div>
+              </div>
+              <div style="height:10px"></div>
+              <div class="hint" id="convertedHint">Converted value: —</div>
+            </div>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <div class="split">
+            <div class="field">
+              <label for="loanInfo">Loan info</label>
+              <input id="loanInfo" placeholder="If loaned: to who / due date / notes" />
+            </div>
+            <div class="field">
+              <label for="edition">Edition</label>
+              <input id="edition" placeholder="e.g., 1st edition, special cover, etc." />
+            </div>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <div class="field">
+            <label for="notes">Notes</label>
+            <textarea id="notes" placeholder="Condition details, where you got it, thoughts, etc."></textarea>
+          </div>
+
+          <div class="hint" style="margin-top:10px" id="isbnHint">ISBN autofill: enter ISBN then click “ISBN Autofill”.</div>
+        </form>
+      </div>
+      <div class="modalft">
+        <button class="ghost" id="cancelBtn">Cancel</button>
+        <button class="primary" id="saveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="modalbox">
+      <div class="modalhd">
+        <h3 id="settingsTitle">Settings</h3>
+        <button class="ghost" id="closeSettingsBtn">✕</button>
+      </div>
+      <div class="modalbd">
+        <div class="panel" style="box-shadow:none">
+          <div class="hd">
+            <h2 style="font-size:13px;margin:0">Currency</h2>
+            <div class="hint">Base currency + provider</div>
+          </div>
+          <div class="bd">
+            <div class="split">
+              <div class="field">
+                <label for="baseCurrency2">Base currency</label>
+                <select id="baseCurrency2"></select>
+              </div>
+              <div class="field">
+                <label for="fxProvider2">FX provider</label>
+                <select id="fxProvider2">
+                  <option value="auto">Auto</option>
+                  <option value="exchangerate_host">exchangerate.host</option>
+                  <option value="exchangerate_api_open">exchangerate-api.com (open)</option>
+                  <option value="manual">Manual (no network)</option>
+                </select>
+              </div>
+            </div>
+            <div style="height:10px"></div>
+            <div class="hint" id="fxSettingsHint">—</div>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="panel" style="box-shadow:none">
+          <div class="hd">
+            <h2 style="font-size:13px;margin:0">Cloud sync (Firebase)</h2>
+            <div class="hint">Optional</div>
+          </div>
+          <div class="bd">
+            <div class="hint" style="margin-bottom:10px">
+              Paste your Firebase config object below (from Firebase Console → Project settings → Web app).
+            </div>
+            <div class="field">
+              <label for="firebaseConfig">Firebase config (JSON)</label>
+              <textarea id="firebaseConfig" placeholder='{
+  "apiKey": "...",
+  "authDomain": "...",
+  "projectId": "...",
+  "storageBucket": "...",
+  "messagingSenderId": "...",
+  "appId": "..."
+}'></textarea>
+            </div>
+            <div style="height:10px"></div>
+            <div class="hint">
+              Firestore collection used: <span class="mono">library_books</span> (per user).
+            </div>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="panel" style="box-shadow:none">
+          <div class="hd">
+            <h2 style="font-size:13px;margin:0">Danger zone</h2>
+            <div class="hint">Be careful</div>
+          </div>
+          <div class="bd">
+            <div class="minirow">
+              <div>
+                <div style="font-weight:900">Clear local library</div>
+                <div class="hint">Deletes everything stored on this device</div>
+              </div>
+              <div class="right">
+                <button class="danger" id="wipeBtn">🧨 Wipe local data</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modalft">
+        <button class="ghost" id="settingsCancelBtn">Close</button>
+        <button class="primary" id="settingsSaveBtn">Save settings</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <input type="file" id="fileInput" accept="application/json" style="display:none" />
+
+  <!-- Firebase SDKs (loaded only if you configure it; safe to include) -->
+  <script type="module">
+    // =========================
+    //  Personal Library Manager Pro
+    //  - IndexedDB storage
+    //  - ISBN autofill (Open Library + Google Books)
+    //  - Multi-currency FX conversion + caching + fallback
+    //  - Optional Firebase Auth + Firestore sync
+    // =========================
+
+    // ---------- DOM helpers ----------
+    const el = (id) => document.getElementById(id);
+    const toast = el("toast");
+    function toastMsg(msg){
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+    function escapeHtml(s){
+      return (s ?? "").toString()
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    function escapeAttr(s){ return escapeHtml(s).replaceAll("`","&#096;"); }
+
+    // ---------- Settings ----------
+    const SETTINGS_KEY = "plm_pro_settings_v1";
+    const THEME_KEY = "plm_theme_v1";
+
+    const DEFAULT_SETTINGS = {
+      baseCurrency: "USD",
+      fxProvider: "auto",
+      fxCache: { base: "USD", fetchedAt: 0, rates: {} }, // rates[CODE] = per 1 base
+      firebaseConfigText: "",
+    };
+
+    function loadSettings(){
+      try{
+        const raw = localStorage.getItem(SETTINGS_KEY);
+        if(!raw) return structuredClone(DEFAULT_SETTINGS);
+        const parsed = JSON.parse(raw);
+        return { ...structuredClone(DEFAULT_SETTINGS), ...parsed };
+      }catch{
+        return structuredClone(DEFAULT_SETTINGS);
+      }
+    }
+    function saveSettings(){
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+      updateFxUI();
+      updateHeaderPill();
+      render();
+    }
+    let settings = loadSettings();
+
+    // ---------- Theme ----------
+    const savedTheme = localStorage.getItem(THEME_KEY) || "dark";
+    document.documentElement.dataset.theme = savedTheme;
+    el("themeBtn").addEventListener("click", () => {
+      const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem(THEME_KEY, next);
+      toastMsg(`Theme: ${next}`);
+    });
+
+    // ---------- Currency list ----------
+    // A solid practical list (extend if you want)
+    const CURRENCIES = [
+      "USD","EUR","GBP","CAD","AUD","NZD","JPY","CNY","HKD","KRW","INR",
+      "SAR","AED","QAR","KWD","BHD","OMR","JOD",
+      "MXN","BRL","ARS","CLP","COP",
+      "CHF","SEK","NOK","DKK","PLN","CZK","HUF","RON",
+      "ZAR","NGN","EGP","TRY","ILS","SGD","MYR","THB","IDR","PHP","VND"
+    ];
+
+    function fillCurrencySelect(selectEl, value){
+      selectEl.innerHTML = CURRENCIES.map(c => `<option value="${c}">${c}</option>`).join("");
+      selectEl.value = value || "USD";
+    }
+
+    // ---------- IndexedDB (local library) ----------
+    const DB_NAME = "plm_pro_db";
+    const DB_VERSION = 1;
+    const STORE = "books";
+
+    function idbOpen(){
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if(!db.objectStoreNames.contains(STORE)){
+            const os = db.createObjectStore(STORE, { keyPath: "id" });
+            os.createIndex("title", "title", { unique: false });
+            os.createIndex("updatedAt", "updatedAt", { unique: false });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+    async function idbTx(mode, fn){
+      const db = await idbOpen();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, mode);
+        const store = tx.objectStore(STORE);
+        const out = fn(store);
+        tx.oncomplete = () => { db.close(); resolve(out); };
+        tx.onerror = () => { db.close(); reject(tx.error); };
+      });
+    }
+    async function idbGetAll(){
+      const db = await idbOpen();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, "readonly");
+        const store = tx.objectStore(STORE);
+        const req = store.getAll();
+        req.onsuccess = () => { db.close(); resolve(req.result || []); };
+        req.onerror = () => { db.close(); reject(req.error); };
+      });
+    }
+    async function idbPut(book){
+      return idbTx("readwrite", (store) => store.put(book));
+    }
+    async function idbDelete(id){
+      return idbTx("readwrite", (store) => store.delete(id));
+    }
+    async function idbClear(){
+      return idbTx("readwrite", (store) => store.clear());
+    }
+
+    // ---------- Book model ----------
+    function uid(){
+      return Math.random().toString(16).slice(2) + Date.now().toString(16);
+    }
+    function normalize(s){ return (s ?? "").toString().replace(/\s+/g," ").trim(); }
+    function parseList(s){
+      return normalize(s).split(",").map(x => x.trim()).filter(Boolean);
+    }
+    function safeImg(url){
+      const u = normalize(url);
+      if(!u) return "";
+      if(/^https?:\/\//i.test(u)) return u;
+      return "";
+    }
+    function clamp(n, a, b){
+      const x = Number(n);
+      if(Number.isNaN(x)) return a;
+      return Math.min(b, Math.max(a, x));
+    }
+    function sanitizeBook(b){
+      const authors = Array.isArray(b.authors) ? b.authors.map(normalize).filter(Boolean) : parseList(b.authors);
+      const categories = Array.isArray(b.categories) ? b.categories.map(normalize).filter(Boolean) : parseList(b.categories);
+      const tags = Array.isArray(b.tags) ? b.tags.map(normalize).filter(Boolean) : parseList(b.tags);
+
+      const pagesTotal = Number(b.pagesTotal || 0);
+      const pagesRead = Number(b.pagesRead || 0);
+      const pct = pagesTotal > 0 ? clamp((pagesRead / pagesTotal) * 100, 0, 100) : 0;
+
+      const price = Number(b.price || 0);
+      const currency = normalize(b.currency) || "USD";
+
+      return {
+        id: b.id || uid(),
+        title: normalize(b.title),
+        authors: authors.length ? authors : ["Unknown"],
+        categories,
+        tags,
+        publisher: normalize(b.publisher),
+        isbn: normalize(b.isbn),
+        coverUrl: safeImg(b.coverUrl),
+        status: normalize(b.status) || "Owned",
+        format: normalize(b.format) || "Paperback",
+        condition: normalize(b.condition),
+        location: normalize(b.location),
+        loanInfo: normalize(b.loanInfo),
+        edition: normalize(b.edition),
+
+        // progress
+        pagesTotal: pagesTotal > 0 ? Math.floor(pagesTotal) : 0,
+        pagesRead: pagesRead > 0 ? Math.floor(pagesRead) : 0,
+        progressPct: pct,
+        startedDate: normalize(b.startedDate),
+        finishedDate: normalize(b.finishedDate),
+        rating: normalize(b.rating), // "1".."5" or ""
+
+        // purchase/value
+        price: price >= 0 ? price : 0,
+        currency,
+
+        purchaseDate: normalize(b.purchaseDate),
+        notes: (b.notes ?? "").toString().trim(),
+
+        createdAt: b.createdAt || Date.now(),
+        updatedAt: Date.now(),
+      };
+    }
+
+    function statusClass(status){
+      if(status === "Read") return "good";
+      if(status === "Reading") return "warn";
+      if(status === "Loaned") return "bad";
+      return "";
+    }
+    function money(n, c){
+      const v = Number(n || 0);
+      try{
+        return v.toLocaleString(undefined, { style:"currency", currency: c || settings.baseCurrency });
+      }catch{
+        return `${(c||"USD")} ${v.toFixed(2)}`;
+      }
+    }
+
+    // ---------- FX (multi-currency) ----------
+    // We store rates per 1 base currency: rates["EUR"] = how many EUR for 1 BASE
+    // To convert amount in native currency -> base:
+    // base = native / rate(native)  (because native = base * rate(native))
+    function fxCacheAgeMs(){
+      return Date.now() - (settings.fxCache?.fetchedAt || 0);
+    }
+    function fxCacheValid(){
+      // valid for 24 hours
+      return settings.fxCache && settings.fxCache.base === settings.baseCurrency && fxCacheAgeMs() < 24*60*60*1000;
+    }
+    function convertToBase(amount, nativeCurrency){
+      const a = Number(amount || 0);
+      const cur = nativeCurrency || settings.baseCurrency;
+      if(cur === settings.baseCurrency) return a;
+
+      const rates = settings.fxCache?.rates || {};
+      const rate = Number(rates[cur] || 0);
+      if(rate > 0){
+        return a / rate;
+      }
+      // fallback: treat as base (better than NaN)
+      return a;
+    }
+
+    async function fetchRates(provider){
+      const base = settings.baseCurrency;
+
+      // Provider A: exchangerate.host (historically keyless; may fail; we handle)
+      async function fromExchangeRateHost(){
+        const url = `https://api.exchangerate.host/latest?base=${encodeURIComponent(base)}`;
+        const r = await fetch(url, { cache: "no-store" });
+        if(!r.ok) throw new Error("exchangerate.host failed");
+        const j = await r.json();
+        if(!j || !j.rates) throw new Error("bad payload");
+        return j.rates;
+      }
+
+      // Provider B: exchangerate-api.com open endpoint (requires attribution; may change)
+      async function fromExchangeRateApiOpen(){
+        // open access example: https://open.er-api.com/v6/latest/USD
+        const url = `https://open.er-api.com/v6/latest/${encodeURIComponent(base)}`;
+        const r = await fetch(url, { cache: "no-store" });
+        if(!r.ok) throw new Error("open.er-api.com failed");
+        const j = await r.json();
+        if(!j || !j.rates) throw new Error("bad payload");
+        return j.rates;
+      }
+
+      if(provider === "manual"){
+        return null;
+      }
+      if(provider === "exchangerate_host"){
+        return await fromExchangeRateHost();
+      }
+      if(provider === "exchangerate_api_open"){
+        return await fromExchangeRateApiOpen();
+      }
+
+      // auto
+      try{
+        return await fromExchangeRateHost();
+      }catch{
+        return await fromExchangeRateApiOpen();
+      }
+    }
+
+    async function ensureRatesFresh(force=false){
+      if(!force && fxCacheValid()){
+        updateFxUI();
+        return true;
+      }
+      if(settings.fxProvider === "manual"){
+        updateFxUI();
+        return false;
+      }
+      try{
+        const rates = await fetchRates(settings.fxProvider);
+        if(rates){
+          settings.fxCache = {
+            base: settings.baseCurrency,
+            fetchedAt: Date.now(),
+            rates
+          };
+          saveSettings();
+          toastMsg("FX rates refreshed.");
+          return true;
+        }
+      }catch(err){
+        console.warn(err);
+        toastMsg("FX refresh failed. Using cached/manual rates.");
+      }
+      updateFxUI();
+      return false;
+    }
+
+    // ---------- ISBN Autofill ----------
+    function cleanIsbn(s){
+      return normalize(s).replaceAll("-", "").replaceAll(" ", "");
+    }
+
+    async function autofillFromISBN(isbnRaw){
+      const isbn = cleanIsbn(isbnRaw);
+      if(!isbn || isbn.length < 10) throw new Error("Enter a valid ISBN");
+
+      // Open Library Books API (best free)
+      // Example: https://openlibrary.org/api/books?bibkeys=ISBN:...
+      async function fromOpenLibrary(){
+        const url = `https://openlibrary.org/api/books?bibkeys=ISBN:${encodeURIComponent(isbn)}&format=json&jscmd=data`;
+        const r = await fetch(url, { cache: "no-store" });
+        if(!r.ok) throw new Error("Open Library failed");
+        const j = await r.json();
+        const key = `ISBN:${isbn}`;
+        const b = j?.[key];
+        if(!b) throw new Error("Not found in Open Library");
+
+        const title = b.title || "";
+        const authors = (b.authors || []).map(a => a.name).filter(Boolean);
+        const publishers = (b.publishers || []).map(p => p.name).filter(Boolean);
+        const cover = b.cover?.large || b.cover?.medium || b.cover?.small || "";
+
+        // subjects often too many; keep a few
+        const categories = (b.subjects || []).slice(0, 6).map(s => s.name).filter(Boolean);
+
+        // pages might be in number_of_pages
+        const pagesTotal = b.number_of_pages || 0;
+
+        return { title, authors, publisher: publishers[0] || "", coverUrl: cover, categories, pagesTotal };
+      }
+
+      // Google Books fallback (keyless usually works, but can be rate limited)
+      async function fromGoogleBooks(){
+        const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(isbn)}`;
+        const r = await fetch(url, { cache: "no-store" });
+        if(!r.ok) throw new Error("Google Books failed");
+        const j = await r.json();
+        const item = j?.items?.[0]?.volumeInfo;
+        if(!item) throw new Error("Not found in Google Books");
+        const title = item.title || "";
+        const authors = item.authors || [];
+        const publisher = item.publisher || "";
+        const coverUrl = item.imageLinks?.thumbnail || item.imageLinks?.smallThumbnail || "";
+        const categories = item.categories || [];
+        const pagesTotal = item.pageCount || 0;
+        return { title, authors, publisher, coverUrl, categories, pagesTotal };
+      }
+
+      try{
+        return await fromOpenLibrary();
+      }catch(e1){
+        return await fromGoogleBooks();
+      }
+    }
+
+    // ---------- In-memory state ----------
+    let books = [];
+    let sortKey = "updatedAt";
+    let sortDir = "desc";
+
+    // ---------- Elements ----------
+    const tbody = el("tbody");
+    const q = el("q");
+    const fStatus = el("fStatus");
+    const fCategory = el("fCategory");
+    const fAuthor = el("fAuthor");
+    const fTag = el("fTag");
+    const fFormat = el("fFormat");
+
+    const sBooks = el("sBooks");
+    const sValue = el("sValue");
+    const sAuthors = el("sAuthors");
+    const sCats = el("sCats");
+    const pillCount = el("pillCount");
+    const pillValue = el("pillValue");
+    const pillBase = el("pillBase");
+
+    const byStatus = el("byStatus");
+    const topCats = el("topCats");
+
+    const modal = el("modal");
+    const modalTitle = el("modalTitle");
+
+    const form = el("form");
+    const fileInput = el("fileInput");
+
+    // Book form fields
+    const fid = el("id");
+    const ftitle = el("title");
+    const fauthors = el("authors");
+    const fcategories = el("categories");
+    const ftags = el("tags");
+    const fpublisher = el("publisher");
+    const fisbn = el("isbn");
+    const fcoverUrl = el("coverUrl");
+    const fstatus2 = el("status");
+    const fformat2 = el("format");
+    const fcondition = el("condition");
+    const flocation = el("location");
+
+    const fpagesTotal = el("pagesTotal");
+    const fpagesRead = el("pagesRead");
+    const fstarted = el("startedDate");
+    const ffinished = el("finishedDate");
+    const frating = el("rating");
+    const progressHint = el("progressHint");
+    const progressBar = el("progressBar");
+
+    const fprice = el("price");
+    const fpriceCurrency = el("priceCurrency");
+    const fpurchaseDate = el("purchaseDate");
+    const convertedHint = el("convertedHint");
+
+    const floanInfo = el("loanInfo");
+    const fedition = el("edition");
+    const fnotes = el("notes");
+    const isbnHint = el("isbnHint");
+
+    // Settings modal
+    const settingsModal = el("settingsModal");
+    const firebaseConfig = el("firebaseConfig");
+    const baseCurrency = el("baseCurrency");
+    const baseCurrency2 = el("baseCurrency2");
+    const fxProvider = el("fxProvider");
+    const fxProvider2 = el("fxProvider2");
+    const fxMeta = el("fxMeta");
+    const fxCacheHint = el("fxCacheHint");
+    const fxSettingsHint = el("fxSettingsHint");
+
+    // Cloud buttons
+    const cloudStatus = el("cloudStatus");
+    const cloudSyncHint = el("cloudSyncHint");
+    const cloudSignInBtn = el("cloudSignInBtn");
+    const cloudSignOutBtn = el("cloudSignOutBtn");
+    const cloudPushBtn = el("cloudPushBtn");
+    const cloudPullBtn = el("cloudPullBtn");
+
+    // ---------- Tabs ----------
+    document.querySelectorAll(".tabbtn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tabbtn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const tab = btn.dataset.tab;
+        el("tab_stats").style.display = tab === "stats" ? "" : "none";
+        el("tab_fx").style.display = tab === "fx" ? "" : "none";
+        el("tab_cloud").style.display = tab === "cloud" ? "" : "none";
+      });
+    });
+
+    // ---------- Settings UI ----------
+    function updateHeaderPill(){
+      pillBase.textContent = settings.baseCurrency;
+    }
+
+    function updateFxUI(){
+      const base = settings.baseCurrency;
+      fxMeta.textContent = `Base: ${base} • Provider: ${settings.fxProvider}`;
+      const age = settings.fxCache?.fetchedAt ? Math.floor(fxCacheAgeMs() / 60000) : null;
+      if(settings.fxProvider === "manual"){
+        fxCacheHint.textContent = "Manual mode (no network). Conversion uses only base = native if no rate.";
+        fxSettingsHint.textContent = "Manual FX means totals won’t convert other currencies unless you switch provider.";
+      }else if(settings.fxCache?.fetchedAt){
+        fxCacheHint.textContent = `Cached ${age} min ago • ${Object.keys(settings.fxCache.rates||{}).length} rates`;
+        fxSettingsHint.textContent = `Cache updates ~daily. Click Refresh if you need newest rates.`;
+      }else{
+        fxCacheHint.textContent = "No cache yet.";
+        fxSettingsHint.textContent = "Click Refresh to fetch exchange rates.";
+      }
+    }
+
+    el("settingsBtn").addEventListener("click", () => openSettings());
+    el("closeSettingsBtn").addEventListener("click", closeSettings);
+    el("settingsCancelBtn").addEventListener("click", closeSettings);
+
+    function openSettings(){
+      settingsModal.classList.add("open");
+      fillCurrencySelect(baseCurrency2, settings.baseCurrency);
+      fxProvider2.value = settings.fxProvider;
+      firebaseConfig.value = settings.firebaseConfigText || "";
+    }
+    function closeSettings(){
+      settingsModal.classList.remove("open");
+    }
+    settingsModal.addEventListener("click", (e) => { if(e.target === settingsModal) closeSettings(); });
+
+    el("settingsSaveBtn").addEventListener("click", async () => {
+      settings.baseCurrency = baseCurrency2.value;
+      settings.fxProvider = fxProvider2.value;
+      settings.firebaseConfigText = firebaseConfig.value.trim();
+
+      // clear cache if base changed
+      if(settings.fxCache?.base !== settings.baseCurrency){
+        settings.fxCache = { base: settings.baseCurrency, fetchedAt: 0, rates: {} };
+      }
+      saveSettings();
+      closeSettings();
+      await ensureRatesFresh(false);
+      await cloudInitMaybe(); // re-init cloud if config changed
+      toastMsg("Settings saved.");
+    });
+
+    el("wipeBtn").addEventListener("click", async () => {
+      if(!confirm("Wipe ALL local books from this device? This cannot be undone.")) return;
+      await idbClear();
+      books = [];
+      render();
+      toastMsg("Local data wiped.");
+    });
+
+    // ---------- FX controls (sidebar) ----------
+    fillCurrencySelect(baseCurrency, settings.baseCurrency);
+    fillCurrencySelect(baseCurrency2, settings.baseCurrency);
+    fxProvider.value = settings.fxProvider;
+    fxProvider2.value = settings.fxProvider;
+
+    baseCurrency.addEventListener("change", async () => {
+      settings.baseCurrency = baseCurrency.value;
+      settings.fxCache = { base: settings.baseCurrency, fetchedAt: 0, rates: {} };
+      saveSettings();
+      await ensureRatesFresh(true);
+    });
+    fxProvider.addEventListener("change", async () => {
+      settings.fxProvider = fxProvider.value;
+      saveSettings();
+      await ensureRatesFresh(true);
+    });
+    el("fxRefreshBtn").addEventListener("click", async () => {
+      await ensureRatesFresh(true);
+      render();
+    });
+
+    // ---------- Fill book currency select ----------
+    fillCurrencySelect(fpriceCurrency, "USD");
+
+    // ---------- Book modal ----------
+    el("addBtn").addEventListener("click", () => openModal());
+    el("closeModalBtn").addEventListener("click", closeModal);
+    el("cancelBtn").addEventListener("click", closeModal);
+
+    function openModal(book){
+      modal.classList.add("open");
+      if(book){
+        modalTitle.textContent = "Edit book";
+        fid.value = book.id;
+        ftitle.value = book.title;
+        fauthors.value = book.authors.join(", ");
+        fcategories.value = book.categories.join(", ");
+        ftags.value = (book.tags || []).join(", ");
+        fpublisher.value = book.publisher || "";
+        fisbn.value = book.isbn || "";
+        fcoverUrl.value = book.coverUrl || "";
+        fstatus2.value = book.status || "Owned";
+        fformat2.value = book.format || "Paperback";
+        fcondition.value = book.condition || "";
+        flocation.value = book.location || "";
+        fpagesTotal.value = book.pagesTotal || "";
+        fpagesRead.value = book.pagesRead || "";
+        fstarted.value = book.startedDate || "";
+        ffinished.value = book.finishedDate || "";
+        frating.value = book.rating || "";
+        fprice.value = (book.price ?? 0) ? book.price : "";
+        fillCurrencySelect(fpriceCurrency, book.currency || settings.baseCurrency);
+        fpurchaseDate.value = book.purchaseDate || "";
+        floanInfo.value = book.loanInfo || "";
+        fedition.value = book.edition || "";
+        fnotes.value = book.notes || "";
+      }else{
+        modalTitle.textContent = "Add book";
+        form.reset();
+        fid.value = "";
+        fstatus2.value = "Owned";
+        fformat2.value = "Paperback";
+        fcondition.value = "";
+        fillCurrencySelect(fpriceCurrency, settings.baseCurrency);
+      }
+      recalcProgressUI();
+      recalcConvertedUI();
+      setTimeout(() => ftitle.focus(), 30);
+    }
+    function closeModal(){ modal.classList.remove("open"); }
+    modal.addEventListener("click", (e) => { if(e.target === modal) closeModal(); });
+
+    // progress UI recalc
+    function recalcProgressUI(){
+      const t = Number(fpagesTotal.value || 0);
+      const r = Number(fpagesRead.value || 0);
+      let pct = 0;
+      if(t > 0) pct = clamp((r / t) * 100, 0, 100);
+      progressHint.textContent = t > 0 ? `Progress: ${Math.floor(r)} / ${Math.floor(t)} pages (${pct.toFixed(1)}%)` : `Progress: —`;
+      progressBar.style.width = `${pct}%`;
+    }
+    function recalcConvertedUI(){
+      const a = Number(fprice.value || 0);
+      const cur = fpriceCurrency.value || settings.baseCurrency;
+      const baseVal = convertToBase(a, cur);
+      convertedHint.textContent = `Converted value: ${money(baseVal, settings.baseCurrency)} (base)`;
+    }
+
+    [fpagesTotal, fpagesRead].forEach(x => x.addEventListener("input", recalcProgressUI));
+    [fprice, fpriceCurrency].forEach(x => x.addEventListener("input", recalcConvertedUI));
+    fpriceCurrency.addEventListener("change", recalcConvertedUI);
+
+    // ISBN Autofill
+    el("isbnFillBtn").addEventListener("click", async (e) => {
+      e.preventDefault();
+      const isbn = fisbn.value;
+      if(!isbn){ toastMsg("Enter an ISBN first."); return; }
+      isbnHint.textContent = "Looking up ISBN…";
+      try{
+        const data = await autofillFromISBN(isbn);
+        if(data.title) ftitle.value = data.title;
+        if(data.authors?.length) fauthors.value = data.authors.join(", ");
+        if(data.publisher) fpublisher.value = data.publisher;
+        if(data.coverUrl) fcoverUrl.value = data.coverUrl;
+        if(data.categories?.length && !fcategories.value) fcategories.value = data.categories.join(", ");
+        if(data.pagesTotal && !fpagesTotal.value) fpagesTotal.value = data.pagesTotal;
+        recalcProgressUI();
+        toastMsg("Autofill complete.");
+        isbnHint.textContent = "ISBN autofill: done.";
+      }catch(err){
+        console.warn(err);
+        toastMsg("ISBN autofill failed (not found / rate limited).");
+        isbnHint.textContent = "ISBN autofill: failed. Try again later or fill manually.";
+      }
+    });
+
+    // Save book
+    el("saveBtn").addEventListener("click", async (e) => {
+      e.preventDefault();
+      if(!form.reportValidity()) return;
+
+      const raw = {
+        id: fid.value || uid(),
+        title: ftitle.value,
+        authors: fauthors.value,
+        categories: fcategories.value,
+        tags: ftags.value,
+        publisher: fpublisher.value,
+        isbn: fisbn.value,
+        coverUrl: fcoverUrl.value,
+        status: fstatus2.value,
+        format: fformat2.value,
+        condition: fcondition.value,
+        location: flocation.value,
+        pagesTotal: fpagesTotal.value,
+        pagesRead: fpagesRead.value,
+        startedDate: fstarted.value,
+        finishedDate: ffinished.value,
+        rating: frating.value,
+        price: fprice.value,
+        currency: fpriceCurrency.value,
+        purchaseDate: fpurchaseDate.value,
+        loanInfo: floanInfo.value,
+        edition: fedition.value,
+        notes: fnotes.value,
+        createdAt: Date.now(),
+      };
+
+      const data = sanitizeBook(raw);
+
+      // auto status: if finishedDate set or progress 100 -> Read
+      if(data.pagesTotal > 0 && data.pagesRead >= data.pagesTotal){
+        data.progressPct = 100;
+        if(!data.finishedDate) data.finishedDate = new Date().toISOString().slice(0,10);
+        if(data.status === "Reading") data.status = "Read";
+      }
+
+      // persist
+      await idbPut(data);
+
+      // update in memory
+      const idx = books.findIndex(b => b.id === data.id);
+      if(idx >= 0) books[idx] = data;
+      else books.unshift(data);
+
+      closeModal();
+      render();
+      toastMsg(idx >= 0 ? "Updated book." : "Added book.");
+    });
+
+    async function removeBook(id){
+      const b = books.find(x => x.id === id);
+      if(!b) return;
+      if(!confirm(`Delete "${b.title}"?`)) return;
+      await idbDelete(id);
+      books = books.filter(x => x.id !== id);
+      render();
+      toastMsg("Deleted book.");
+    }
+
+    // ---------- Import / Export ----------
+    function downloadBlob(blob, filename){
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+    function csvCell(v){
+      const s = (v ?? "").toString();
+      if(/[",\n]/.test(s)) return `"${s.replaceAll('"','""')}"`;
+      return s;
+    }
+
+    el("exportBtn").addEventListener("click", async () => {
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        app: "Personal Library Manager Pro",
+        version: 2,
+        settings: { baseCurrency: settings.baseCurrency },
+        books
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+      downloadBlob(blob, `library-pro-export-${new Date().toISOString().slice(0,10)}.json`);
+      toastMsg("Exported JSON.");
+    });
+
+    el("exportCsvBtn").addEventListener("click", async () => {
+      const headers = [
+        "title","authors","categories","tags","publisher","isbn","coverUrl","status","format","condition",
+        "pagesTotal","pagesRead","progressPct","startedDate","finishedDate","rating",
+        "price","currency","purchaseDate","location","loanInfo","edition","notes"
+      ];
+      const rows = books.map(b => headers.map(h => csvCell(
+        h === "authors" ? b.authors.join(", ")
+        : h === "categories" ? b.categories.join(", ")
+        : h === "tags" ? (b.tags||[]).join(", ")
+        : b[h] ?? ""
+      )).join(","));
+      const csv = [headers.join(","), ...rows].join("\n");
+      const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+      downloadBlob(blob, `library-pro-export-${new Date().toISOString().slice(0,10)}.csv`);
+      toastMsg("Exported CSV.");
+    });
+
+    el("importBtn").addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", async () => {
+      const file = fileInput.files?.[0];
+      if(!file) return;
+      try{
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        const incoming = Array.isArray(parsed) ? parsed : (parsed.books || []);
+        if(!Array.isArray(incoming)) throw new Error("Invalid format");
+        const cleaned = incoming.map(sanitizeBook);
+
+        // upsert all
+        for(const b of cleaned) await idbPut(b);
+
+        // reload
+        books = await idbGetAll();
+        render();
+        toastMsg(`Imported ${cleaned.length} book(s).`);
+      }catch(err){
+        console.error(err);
+        toastMsg("Import failed. Use a valid JSON export.");
+      }finally{
+        fileInput.value = "";
+      }
+    });
+
+    // ---------- Search/filters/sort ----------
+    [q, fStatus, fCategory, fAuthor, fTag, fFormat].forEach(x => x.addEventListener("input", render));
+    el("clearBtn").addEventListener("click", () => {
+      q.value = "";
+      fStatus.value = "";
+      fCategory.value = "";
+      fAuthor.value = "";
+      fTag.value = "";
+      fFormat.value = "";
+      render();
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k"){
+        e.preventDefault(); q.focus();
+      }
+      if(e.key === "Escape"){
+        if(modal.classList.contains("open")) closeModal();
+        if(settingsModal.classList.contains("open")) closeSettings();
+      }
+    });
+
+    document.querySelectorAll("th[data-sort]").forEach(th => {
+      th.addEventListener("click", () => {
+        const key = th.dataset.sort;
+        if(sortKey === key) sortDir = (sortDir === "asc" ? "desc" : "asc");
+        else { sortKey = key; sortDir = "asc"; }
+        render();
+      });
+    });
+
+    function uniq(arr){
+      return Array.from(new Set(arr.map(x => (x||"").trim()).filter(Boolean)));
+    }
+    function alpha(a,b){ return a.localeCompare(b, undefined, {sensitivity:"base"}); }
+
+    function applyFilters(list){
+      const needle = q.value.trim().toLowerCase();
+      const st = fStatus.value;
+      const cat = fCategory.value;
+      const au = fAuthor.value;
+      const tag = fTag.value;
+      const fmt = fFormat.value;
+
+      return list.filter(b => {
+        if(st && b.status !== st) return false;
+        if(fmt && b.format !== fmt) return false;
+        if(cat && !b.categories.includes(cat)) return false;
+        if(au && !b.authors.includes(au)) return false;
+        if(tag && !(b.tags||[]).includes(tag)) return false;
+
+        if(!needle) return true;
+        const hay = [
+          b.title,
+          b.authors.join(" "),
+          b.categories.join(" "),
+          (b.tags||[]).join(" "),
+          b.publisher,
+          b.isbn,
+          b.status,
+          b.format,
+          b.condition,
+          b.location,
+          b.loanInfo,
+          b.edition,
+          b.notes
+        ].join(" ").toLowerCase();
+        return hay.includes(needle);
+      });
+    }
+
+    function sortValue(b, key){
+      if(key === "title") return (b.title||"").toLowerCase();
+      if(key === "authors") return (b.authors.join(", ")||"").toLowerCase();
+      if(key === "categories") return (b.categories.join(", ")||"").toLowerCase();
+      if(key === "status") return (b.status||"").toLowerCase();
+      if(key === "format") return (b.format||"").toLowerCase();
+      if(key === "location") return (b.location||"").toLowerCase();
+      if(key === "purchaseDate") return (b.purchaseDate||"");
+      if(key === "progress") return Number(b.progressPct||0);
+      if(key === "priceNative") return Number(b.price||0);
+      if(key === "valueBase") return Number(convertToBase(b.price||0, b.currency||settings.baseCurrency));
+      if(key === "updatedAt") return Number(b.updatedAt||0);
+      return (b.title||"").toLowerCase();
+    }
+
+    function sortBooks(list){
+      const dir = sortDir === "asc" ? 1 : -1;
+      return [...list].sort((a,b) => {
+        const av = sortValue(a, sortKey);
+        const bv = sortValue(b, sortKey);
+        if(av < bv) return -1 * dir;
+        if(av > bv) return  1 * dir;
+        return 0;
+      });
+    }
+
+    function computeTotals(list){
+      let valueBase = 0;
+      const byStatus = {};
+      const byCategory = {};
+      for(const b of list){
+        valueBase += convertToBase(b.price || 0, b.currency || settings.baseCurrency);
+        byStatus[b.status] = (byStatus[b.status] || 0) + 1;
+        for(const c of b.categories) byCategory[c] = (byCategory[c] || 0) + 1;
+      }
+      return { count: list.length, valueBase, byStatus, byCategory };
+    }
+
+    function statusTag(b){
+      const cls = statusClass(b.status);
+      const loan = (b.status === "Loaned" && b.loanInfo) ? ` <span class="hint">• ${escapeHtml(b.loanInfo)}</span>` : "";
+      return `<span class="tag ${cls}">${escapeHtml(b.status)}</span>${loan}`;
+    }
+
+    function progressCell(b){
+      const pct = Number(b.progressPct || 0);
+      const txt = b.pagesTotal > 0 ? `${Math.floor(b.pagesRead||0)}/${Math.floor(b.pagesTotal)} (${pct.toFixed(0)}%)` : (pct ? `${pct.toFixed(0)}%` : "—");
+      const w = clamp(pct, 0, 100);
+      return `
+        <div style="min-width:160px">
+          <div class="hint" style="margin-bottom:6px">${escapeHtml(txt)}</div>
+          <div class="bar"><div style="width:${w}%;"></div></div>
+        </div>
+      `;
+    }
+
+    function rowHtml(b){
+      const baseVal = convertToBase(b.price || 0, b.currency || settings.baseCurrency);
+      const cover = b.coverUrl
+        ? `<img src="${escapeAttr(b.coverUrl)}" alt="" loading="lazy" onerror="this.closest('.cover').innerHTML='<span>no cover</span>'">`
+        : `<span>no cover</span>`;
+
+      const cats = b.categories.length ? b.categories.slice(0,4).map(c => `<span class="tag">${escapeHtml(c)}</span>`).join(" ") : `<span class="hint">—</span>`;
+      const rating = b.rating ? `<span class="tag">⭐ ${escapeHtml(b.rating)}</span>` : "";
+      const cond = b.condition ? `<span class="tag">${escapeHtml(b.condition)}</span>` : "";
+
+      return `
+        <tr>
+          <td>
+            <div class="book">
+              <div class="cover">${cover}</div>
+              <div>
+                <div class="title">${escapeHtml(b.title)}</div>
+                <div class="meta">${escapeHtml(b.publisher || "—")} • ${escapeHtml(b.isbn || "No ISBN")} ${rating} ${cond}</div>
+              </div>
+            </div>
+          </td>
+          <td>${escapeHtml(b.authors.join(", "))}</td>
+          <td>${cats}</td>
+          <td>${statusTag(b)}</td>
+          <td>${progressCell(b)}</td>
+          <td>${escapeHtml(b.format || "—")}</td>
+          <td><strong>${money(baseVal, settings.baseCurrency)}</strong></td>
+          <td>${money(b.price || 0, b.currency || settings.baseCurrency)} <span class="hint">(${escapeHtml(b.currency || settings.baseCurrency)})</span></td>
+          <td>${escapeHtml(b.purchaseDate || "—")}</td>
+          <td>${escapeHtml(b.location || "—")}</td>
+          <td>
+            <div class="rowbtns">
+              <button id="edit_${b.id}" class="ghost" title="Edit">✏️</button>
+              <button id="del_${b.id}" class="danger" title="Delete">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
+
+    function setSelectOptions(selectEl, values, allLabel){
+      const cur = selectEl.value;
+      const base = `<option value="">${allLabel}</option>`;
+      const opts = values.map(v => `<option value="${escapeAttr(v)}">${escapeHtml(v)}</option>`).join("");
+      selectEl.innerHTML = base + opts;
+      if(cur && values.includes(cur)) selectEl.value = cur;
+      else selectEl.value = "";
+    }
+
+    // ---------- Render ----------
+    function render(){
+      // fill filters from full dataset
+      const allCats = uniq(books.flatMap(b => b.categories)).sort(alpha);
+      const allAuthors = uniq(books.flatMap(b => b.authors)).sort(alpha);
+      const allTags = uniq(books.flatMap(b => (b.tags||[]))).sort(alpha);
+
+      setSelectOptions(fCategory, allCats, "All");
+      setSelectOptions(fAuthor, allAuthors, "All");
+      setSelectOptions(fTag, allTags, "All");
+
+      const filtered = applyFilters(books);
+      const sorted = sortBooks(filtered);
+
+      tbody.innerHTML = sorted.map(rowHtml).join("");
+
+      // bind row buttons
+      for(const b of sorted){
+        el(`edit_${b.id}`).addEventListener("click", () => openModal(b));
+        el(`del_${b.id}`).addEventListener("click", () => removeBook(b.id));
+      }
+
+      const totals = computeTotals(books);
+
+      sBooks.textContent = totals.count;
+      sValue.textContent = money(totals.valueBase, settings.baseCurrency);
+      sAuthors.textContent = uniq(books.flatMap(b => b.authors)).length;
+      sCats.textContent = uniq(books.flatMap(b => b.categories)).length;
+
+      pillCount.textContent = totals.count;
+      pillValue.textContent = money(totals.valueBase, settings.baseCurrency);
+
+      byStatus.innerHTML = Object.entries(totals.byStatus)
+        .sort((a,b) => b[1]-a[1])
+        .map(([k,v]) => `<div style="display:flex;justify-content:space-between;gap:10px;margin:6px 0">
+            <span class="tag ${statusClass(k)}">${escapeHtml(k)}</span>
+            <span><strong>${v}</strong></span>
+          </div>`).join("") || `<div class="hint">No books yet.</div>`;
+
+      const top = Object.entries(totals.byCategory)
+        .sort((a,b) => b[1]-a[1])
+        .slice(0,7);
+
+      topCats.innerHTML = top.map(([k,v]) => `<div style="display:flex;justify-content:space-between;gap:10px;margin:6px 0">
+          <span class="tag">${escapeHtml(k)}</span>
+          <span><strong>${v}</strong></span>
+        </div>`).join("") || `<div class="hint">Add categories to see trends.</div>`;
+
+      updateHeaderPill();
+      updateFxUI();
+    }
+
+    // ---------- Initial load ----------
+    async function boot(){
+      // load local books from IndexedDB
+      books = await idbGetAll();
+
+      // setup currency selects
+      fillCurrencySelect(baseCurrency, settings.baseCurrency);
+      fillCurrencySelect(baseCurrency2, settings.baseCurrency);
+      fxProvider.value = settings.fxProvider;
+      fxProvider2.value = settings.fxProvider;
+
+      fillCurrencySelect(fpriceCurrency, settings.baseCurrency);
+
+      updateHeaderPill();
+      updateFxUI();
+
+      // fetch FX in background (if needed)
+      await ensureRatesFresh(false);
+
+      render();
+
+      // attempt cloud init if configured
+      await cloudInitMaybe();
+    }
+    boot();
+
+    // ---------- Cloud sync (Firebase optional) ----------
+    // Loads Firebase modules dynamically only if config exists.
+    let firebaseReady = false;
+    let firebaseApp = null;
+    let firebaseAuth = null;
+    let firebaseDb = null;
+    let firebaseUser = null;
+
+    async function cloudInitMaybe(){
+      firebaseReady = false;
+      firebaseApp = firebaseAuth = firebaseDb = firebaseUser = null;
+
+      const cfgText = (settings.firebaseConfigText || "").trim();
+      if(!cfgText){
+        cloudStatus.textContent = "Not configured";
+        cloudSyncHint.textContent = "Paste config in Settings to enable sync.";
+        cloudSignInBtn.disabled = true;
+        cloudPushBtn.disabled = true;
+        cloudPullBtn.disabled = true;
+        cloudSignOutBtn.style.display = "none";
+        return;
+      }
+
+      let cfg;
+      try{
+        cfg = JSON.parse(cfgText);
+      }catch{
+        cloudStatus.textContent = "Config invalid JSON";
+        cloudSyncHint.textContent = "Fix JSON in Settings.";
+        cloudSignInBtn.disabled = true;
+        cloudPushBtn.disabled = true;
+        cloudPullBtn.disabled = true;
+        cloudSignOutBtn.style.display = "none";
+        return;
+      }
+
+      try{
+        // Dynamic import Firebase SDKs
+        const appMod = await import("https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js");
+        const authMod = await import("https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js");
+        const fsMod = await import("https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js");
+
+        firebaseApp = appMod.initializeApp(cfg);
+        firebaseAuth = authMod.getAuth(firebaseApp);
+        firebaseDb = fsMod.getFirestore(firebaseApp);
+
+        // auth state
+        authMod.onAuthStateChanged(firebaseAuth, (user) => {
+          firebaseUser = user || null;
+          firebaseReady = true;
+          if(user){
+            cloudStatus.textContent = `Signed in: ${user.email || user.uid}`;
+            cloudSignInBtn.style.display = "none";
+            cloudSignOutBtn.style.display = "";
+            cloudPushBtn.disabled = false;
+            cloudPullBtn.disabled = false;
+            cloudSyncHint.textContent = "Ready to push/pull.";
+          }else{
+            cloudStatus.textContent = "Configured (signed out)";
+            cloudSignInBtn.style.display = "";
+            cloudSignOutBtn.style.display = "none";
+            cloudPushBtn.disabled = true;
+            cloudPullBtn.disabled = true;
+            cloudSyncHint.textContent = "Sign in to sync.";
+          }
+        });
+
+        // enable buttons
+        cloudSignInBtn.disabled = false;
+        cloudSyncHint.textContent = "Firebase ready. Sign in to sync.";
+        cloudStatus.textContent = "Configured";
+      }catch(err){
+        console.warn(err);
+        cloudStatus.textContent = "Firebase failed to load";
+        cloudSyncHint.textContent = "Check config and try again.";
+        cloudSignInBtn.disabled = true;
+        cloudPushBtn.disabled = true;
+        cloudPullBtn.disabled = true;
+        cloudSignOutBtn.style.display = "none";
+      }
+    }
+
+    // Sign in/out + push/pull
+    cloudSignInBtn.addEventListener("click", async () => {
+      if(!firebaseAuth) return toastMsg("Cloud not configured.");
+      try{
+        const authMod = await import("https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js");
+        const provider = new authMod.GoogleAuthProvider();
+        await authMod.signInWithPopup(firebaseAuth, provider);
+        toastMsg("Signed in.");
+      }catch(err){
+        console.warn(err);
+        toastMsg("Sign-in failed (popup blocked?).");
+      }
+    });
+
+    cloudSignOutBtn.addEventListener("click", async () => {
+      if(!firebaseAuth) return;
+      try{
+        const authMod = await import("https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js");
+        await authMod.signOut(firebaseAuth);
+        toastMsg("Signed out.");
+      }catch{
+        toastMsg("Sign-out failed.");
+      }
+    });
+
+    async function cloudPush(){
+      if(!firebaseDb || !firebaseUser) return toastMsg("Sign in first.");
+      const fsMod = await import("https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js");
+
+      const uid = firebaseUser.uid;
+      const colRef = fsMod.collection(firebaseDb, "users", uid, "library_books");
+
+      // push all books (batched)
+      const batch = fsMod.writeBatch(firebaseDb);
+      for(const b of books){
+        const docRef = fsMod.doc(colRef, b.id);
+        batch.set(docRef, b, { merge: true });
+      }
+      await batch.commit();
+      cloudSyncHint.textContent = `Pushed ${books.length} book(s).`;
+      toastMsg("Cloud push complete.");
+    }
+
+    async function cloudPull(){
+      if(!firebaseDb || !firebaseUser) return toastMsg("Sign in first.");
+      const fsMod = await import("https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js");
+
+      const uid = firebaseUser.uid;
+      const colRef = fsMod.collection(firebaseDb, "users", uid, "library_books");
+      const snap = await fsMod.getDocs(colRef);
+
+      const incoming = [];
+      snap.forEach(doc => incoming.push(doc.data()));
+
+      // upsert to indexeddb
+      for(const b of incoming){
+        await idbPut(sanitizeBook(b));
+      }
+
+      books = await idbGetAll();
+      render();
+      cloudSyncHint.textContent = `Pulled ${incoming.length} book(s).`;
+      toastMsg("Cloud pull complete.");
+    }
+
+    cloudPushBtn.addEventListener("click", async () => {
+      try{ await cloudPush(); }catch(e){ console.warn(e); toastMsg("Cloud push failed."); }
+    });
+    cloudPullBtn.addEventListener("click", async () => {
+      try{ await cloudPull(); }catch(e){ console.warn(e); toastMsg("Cloud pull failed."); }
+    });
+
+  </script>
+</body>
+</html>
